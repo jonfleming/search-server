@@ -1,5 +1,3 @@
-process.binding("http_parser").HTTPParser =
-  require("http-parser-js").HTTPParser;
 const http = require("http");
 const https = require("https");
 const { parse } = require("querystring");
@@ -10,7 +8,7 @@ if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
 
-var port = process.env.PORT || 8080;
+var port = process.env.PORT || 8081;
 
 const SUBSCRIPTION_KEY = process.env.AZURE_SUBSCRIPTION_KEY;
 if (!SUBSCRIPTION_KEY) {
@@ -32,7 +30,6 @@ async function getHTMLAsText(url) {
 }
 
 const server = http.createServer((req, res) => {
-  if (req.method == "POST") {
     let data = "";
     req.on("data", (chunk) => {
       data += chunk.toString();
@@ -49,9 +46,6 @@ const server = http.createServer((req, res) => {
         )
         .catch((error) => res.end(JSON.stringify(error)));
     });
-  } else {
-    res.end("Must use POST method.");
-  }
 });
 
 server.listen(port, () => {
@@ -64,14 +58,13 @@ function bingWebSearch(query, count) {
       encodeURIComponent(query) +
       "&answerCount=" +
       encodeURIComponent(count) +
-      "&responseFilter=webpages"
+      "&responseFilter=webpages,news"
   );
   return new Promise((resolve, reject) => {
     https.get(
       {
         hostname: "api.bing.microsoft.com",
-        path:
-          "/v7.0/search?q=" +
+        path: "/v7.0/search?q=" +
           encodeURIComponent(query) +
           "&count=" +
           encodeURIComponent(count) +
